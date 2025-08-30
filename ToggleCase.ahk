@@ -7,27 +7,19 @@ MAX_STATE := 3
 ; 2 = lower case
 ; 3 = Proper Case
 
-#CapsLock::{
-    global case_state, MAX_STATE
+ToggleTextCase(SelectedCaseCBFn){
     temp_clip := A_Clipboard    ; saves clipboard contents before 
     A_Clipboard := ""
     Sleep 150
     Send '^c'                   ; copies currently selected text
-    ClipWait
 
-    switch case_state {
-        case 1: 
-            A_Clipboard := StrUpper(A_Clipboard)
-        case 2: 
-            A_Clipboard := StrLower(A_Clipboard)
-        case 3: 
-            A_Clipboard := StrTitle(A_Clipboard)
+    isText := ClipWait(0.3, 0)  ; wait up to .3 seconds for clipboard data (0 = text only)
+    if(!isText || A_Clipboard = ""){
+        ; valididate clipboard, return if no text is selected
+        return
     }
-    if(case_state>=MAX_STATE){
-        case_state := 1
-    } else {
-        case_state := case_state+1
-    }
+
+    A_Clipboard := SelectedCaseCBFn(A_Clipboard)
 
     Send '^v'                   ; pastes formatted text 
     Sleep 100
@@ -35,33 +27,27 @@ MAX_STATE := 3
     return
 }
 
-; converts selected text to UPPER CASE ("Hello World" becomes "HELLO WORLD")
-#+u::{ ; Win+Shift+U
-    temp_clip := A_Clipboard
-    A_Clipboard := ""
-    Sleep 150
-    Send '^c'
-    ClipWait
-    A_Clipboard := StrUpper(A_Clipboard)
-    Send '^v'
-    Sleep 100
-    A_Clipboard := temp_clip
+
+#CapsLock::{ ; Win+CapsLock
+    global case_state, MAX_STATE
+    switch case_state {
+        case 1: 
+            ToggleTextCase(StrUpper)
+        case 2:
+            ToggleTextCase(StrLower)
+        case 3:
+            ToggleTextCase(StrTitle)
+    }
+
+    ; increments or resets current state
+    case_state := (case_state>=MAX_STATE) ? 1 : case_state := case_state+1
+    
     return
 }
 
+; converts SELECTED TEXT to UPPER CASE ("Hello World" becomes "HELLO WORLD")
 ; converts selected text to lower case ("Hello World" becomes "hello world")
-#+l::{ ; Win+Shift+L
-    temp_clip := A_Clipboard
-    A_Clipboard := ""
-    Sleep 150
-    Send '^c'
-    ClipWait
-    A_Clipboard := StrLower(A_Clipboard)
-    Send '^v'
-    Sleep 100
-    A_Clipboard := temp_clip
-    return
-}
+; converts selected text to Proper Case ("HELLO WORLD" becomes "Hello World")
 
 ; reference
 ; # = Windows key
