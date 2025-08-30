@@ -7,7 +7,7 @@ MAX_STATE := 3
 ; 2 = lower case
 ; 3 = Proper Case
 
-ToggleTextCase(SelectedCaseCBFn){
+SetTextCase(SelectedCaseCBFn){
     temp_clip := A_Clipboard    ; saves clipboard contents before 
     A_Clipboard := ""
     Sleep 150
@@ -27,31 +27,41 @@ ToggleTextCase(SelectedCaseCBFn){
     return
 }
 
-
+; Cycles through possible case states (UPPER -> lower -> Proper)
 #CapsLock::{ ; Win+CapsLock
     global case_state, MAX_STATE
     switch case_state {
         case 1: 
-            ToggleTextCase(StrUpper)
+            SetTextCase(StrUpper)
         case 2:
-            ToggleTextCase(StrLower)
+            SetTextCase(StrLower)
         case 3:
-            ToggleTextCase(StrTitle)
+            SetTextCase(StrTitle)
     }
 
     ; increments or resets current state
-    case_state := (case_state>=MAX_STATE) ? 1 : case_state := case_state+1
+    case_state := (case_state >= MAX_STATE) ? 1 : case_state + 1
     
     return
 }
 
-; converts SELECTED TEXT to UPPER CASE ("Hello World" becomes "HELLO WORLD")
-; converts selected text to lower case ("Hello World" becomes "hello world")
-; converts selected text to Proper Case ("HELLO WORLD" becomes "Hello World")
+; CAPSLOCK+U or CAPSLOCK+Q (U for UpperCase, Q because it's the closest letter to CAPS in the upper row of the keyboard)
+; converts selected text to UPPER CASE ("Hello World" becomes "HELLO WORLD")
+CapsLock & U::                  
+CapsLock & Q::{ 
+    SetTextCase(StrUpper) 
+}
 
-; reference
-; # = Windows key
-; ! = Alt key
-; ^ = Control key
-; + = Shift key
-; CapsLock
+; CAPSLOCK+L or CAPSLOCK+Z (L for LowerCase, Z because it's the closest letter to CAPS in the lower row of the keyboard)
+; converts selected text to lower case ("Hello World" becomes "hello world")
+CapsLock & L::                  
+CapsLock & Z::{ 
+    SetTextCase(StrLower) 
+}
+
+; CAPSLOCK+P or CAPSLOCK+A (P for ProperCase, A because it's in between the Upper and Lower shortcuts)
+; converts selected text to Proper Case ("HELLO WORLD" becomes "Hello World")
+CapsLock & P::                  
+CapsLock & A::{ 
+    SetTextCase(StrTitle) 
+}
