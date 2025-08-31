@@ -26,7 +26,7 @@ A simple AutoHotkey v2 script that provides quick keyboard shortcuts to change t
 ## How to Use
 
 1. **Select text** in any application (Word, Notepad, browser, etc.)
-2. **Press one of the shortcuts** [above](#keyboard-shortcuts)
+2. **Press one of the shortcuts** [below](#keyboard-shortcuts)
 3. **Text is converted** to the chosen case format
 
 ## Keyboard Shortcuts
@@ -75,10 +75,30 @@ If you prefer to customize or compile the .exe yourself, follow these steps:
 9. Click Convert
 10. Double-click the newly generated .exe file to run it. See above to set up Windows startup. 
 
+## Contributions & Suggestions
+Contributions, feature requests, and suggestions are very welcome. If you find a bug, would like to recommend a feature, or want to submit a pull request:
+
+- Open an issue describing your problem or idea.
+- Fork the repository and make a pull request for enhancements or bug fixes.
+- Share feedback via discussions or comments on GitHub.
+
+Whether you are an AutoHotkey veteran or new to scripting, all types of input are appreciated.
+
+## Areas for Improvement / Known Limitations
+There are a few features and refinements that could enhance this script further:
+
+- **Maintaining Text Selection**: Currently, toggling case replaces and unselects the text. I experimented with reselecting the text after execution, but the delay is noticeable on larger selections. To keep the interaction more seamless, I chose not to implement this feature in the main branch until a more efficient solution is found. See [issue #1](https://github.com/GuiCarminati/ToggleCase/issues/1) for details and discussions.
+- **App Compatibility**: The script may behave differently depending on the application (such as browsers, IDEs, or chat clients) due to how each handles clipboard and shortcuts.
+- **Edge Cases**: Some special formatting, Unicode characters, or multi-line selections might not be handled perfectly.
+- **Expand Case Options**: Future updates could allow for sentence case, alternating case, or customizable case formats via configuration.
+- **Customizable Hotkeys**: Making shortcuts user-configurable within the script or via an external settings file.
+
+Have ideas for any of these, or want to tackle one yourself? Please contribute!
+
 ## Credits
 
 Inspired by [this AutoHotkey community post](https://www.autohotkey.com/boards/viewtopic.php?t=92646) and updated for AutoHotkey v2 compatibility.
 
 ## License
 
-Free to use and modify for personal and commercial purposes.
+[MIT License](https://github.com/GuiCarminati/ToggleCase/blob/main/LICENSE). Free to use and modify for personal and commercial purposes. 
