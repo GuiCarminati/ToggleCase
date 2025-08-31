@@ -93,29 +93,58 @@ Problems with the approach below:
     each application. 
     - Tabs/spaces at the start and end of a line can be tricky to handle. You want trim trailling tabs/spaces 
     so that they don't count as multiple words, but if ignoring them completely, the total word count will be less. 
-The trailling tabs/spaces problem could probably be solved by handling first and last lines differently than middle
-lines. For example, having a SHIFT+HOME command, followed by SHIFT+UP on subsequent lines, and then SHIFT+LEFT for 
-the number of words on the last line (the most top line going bottom->top).
+I tried implementing a slight better approach of reselecting line by line instead of word by word (expect on first
+and last lines). It kind of works, but it misbehaves depending on the text editor, the amount of lines and the 
+delimiters (characters where the cursor will stop at while navigation with SHIFT+CTRL+LEFT). It gets the number of 
+lines correct most of the times, but it misses by a few words on the top line. 
 
-This works for selections in a single line (but it still has a noticeable dealy, you can notice the cursor selecting each char). 
+It still mostly works for a single line, but kind of breaks on multiple lines. But it can get the reselection wrong
+if the delimiters behave differently than expected. Examples where special characters can be a problem:
+    1. The cursor will stop at a "=" and at a ">", but it will go over them if they're together ("=>"). But on the 
+      array resulting from StrSplit, each delimiter creates a word. To account for this particular case, i added a
+      "=>" as a delimiter as well, but there are many other character combination where this could be a problem.
+    2. In VSCode, on a word with a "_", the cursor goes over the whole word when sending a CRTL+LEFT command. But
+      on Notepad, it stops at the "_" as if it was a space (eg. "user_name": VSCode: "user_name|" -> "|user_name"
+      Notepad: "user_name" -> "user_|name" -> "|user_name").  
 */
 ReselectText(original_text){
-    lines := StrSplit(original_text,"`r`n")
-    delimiters := [" ","`t",",",".",";","[","]","{","}","@","`'","`"","!","#",":","~","=","+","-","*","(",")","``"]
-    Loop lines.Length{
-        line := Trim(lines[A_Index])    ; process each line ignoring spaces at start and end
-        num_words := StrSplit(line,delimiters).Length
-        Loop num_words{
-            Send "+^{Left}"
+    lines := StrSplit(Trim(original_text),["`r`n","`n`r"])
+
+    if(lines.Length=1){                         ; special (simpler) case when only one line is selected
+        ReselectSingleLine(Trim(original_text))
+    } else {
+        i := lines.Length                       ; start from last line
+        While (i > 0) {
+            if(i = lines.Length){               ; first line from the bottom
+                Send "+{Home}{Home}"            ; {Home} twice because some editors place the cursor at the start of the last word the first time
+            } else if(i > 1){                   ; all lines between bottom and top
+                Send "+{Up}"
+            } else {                            ; last line to be processed (the top line)
+                Send "+^{Left}"
+                ReselectSingleLine(lines[i])
+            }
+            ; Sleep 300
+            ; MsgBox lines[i]
+            i--
         }
     }
 }
 
-; reference
+ReselectSingleLine(original_text){
+    delimiters := [" ","`t",",",".",";","[","]","{","}","@","`'","`"","!","#",":","~","=","+","-","*","(",")","``","<",">","?","/","|","\","->","=>"]
+    num_words := StrSplit(original_text,delimiters).Length
+    Loop num_words{
+        Send "+^{Left}"
+    }
+}
+
+; special character reference
 ; # = Windows key
 ; ! = Alt key
 ; ^ = Control key
 ; + = Shift key
 ; {Left} = Left arrow key
 ; {Right} = Right arrow key
+; {Up} = Left arrow key
+; {Down} = Right arrow key
 ; CapsLock
